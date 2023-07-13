@@ -11,15 +11,18 @@ BaseModel = declarative_base()
 
 class SQLClient:
     """简单的结构，包含一些SQL连接的信息"""
-    def __init__(self,
-                 host='localhost',
-                 port=3306,
-                 username='',
-                 password='',
-                 db_name='quant',
-                 db_type='mysql',
-                 db_driver='pymysql',
-                 charset="utf-8"):
+
+    def __init__(
+        self,
+        host="localhost",
+        port=3306,
+        username="",
+        password="",
+        db_name="quant",
+        db_type="mysql",
+        db_driver="pymysql",
+        charset="utf-8",
+    ):
         """
         获得数据库连接
         Args:
@@ -40,19 +43,24 @@ class SQLClient:
             charset (str):
                 编码，对mssql中文可能需要设置为cp936
         """
-        self.sqlalchemy_conn_string = \
-            '%(db_type)s+%(db_driver)s://%(username)s:%(password)s@%(host)s:%(port)s/%(db_name)s?charset=%(charset)s' %\
-            dict(
+        from urllib.parse import quote_plus
+
+        self.sqlalchemy_conn_string = (
+            "%(db_type)s+%(db_driver)s://%(username)s:%(password)s@%(host)s:%(port)s/%(db_name)s?charset=%(charset)s"
+            % dict(
                 host=host,
                 port=port,
                 username=username,
-                password=password,
+                password=quote_plus(password),
                 db_name=db_name,
                 db_driver=db_driver,
                 db_type=db_type,
                 charset=charset,
             )
-        self.engine = sqlalchemy.create_engine(self.sqlalchemy_conn_string, echo=False)
+        )
+        self.engine = sqlalchemy.create_engine(
+            self.sqlalchemy_conn_string, echo=False
+        )
         self.session = sqlalchemy.orm.sessionmaker(bind=self.engine)()
 
     def table_names(self):
@@ -71,4 +79,3 @@ class SQLClient:
                 return getattr(self.session, name)
             else:
                 raise AttributeError
-

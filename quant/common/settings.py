@@ -13,6 +13,7 @@ DATA_PATH = os.path.join(MAIN_PATH, "data")
 
 class ConfigManager:
     """配置项管理，解析配置文件，并允许配置项被命令行参数重写"""
+
     def __init__(self, path="config.cfg"):
         self.path = path
         self.__keys = set()
@@ -41,13 +42,13 @@ class ConfigManager:
             value = pair[1].strip()
             help_text = ""
             choices = None
-            if "#" in value:
-                # Take whatever after `#` as comment. This may cause
-                # problems if value string includes `#`
-                i = value.index("#")
-                help_text = value[i+1:].strip()
-                help_text, choices = self.__parse_choices(help_text)
-                value = value[:i].strip()
+            # if "#" in value:
+            #     # Take whatever after `#` as comment. This may cause
+            #     # problems if value string includes `#`
+            #     i = value.index("#")
+            #     help_text = value[i+1:].strip()
+            #     help_text, choices = self.__parse_choices(help_text)
+            #     value = value[:i].strip()
             true_value = None
             for parser in (int, float, self.__boolparser, self.__strparser):
                 try:
@@ -58,11 +59,15 @@ class ConfigManager:
                     break
             if true_value is None:
                 raise ValueError("unexpected error in config: `%s`" % line)
-            cfg[key.upper()] = {'default': true_value, 'type': type(true_value)}
+            cfg[key.upper()] = {"default": true_value, "type": type(true_value)}
             self.__keys.add(key.upper())
-            self.parser.add_argument("--%s" % key, default=true_value,
-                                     type=type(true_value), help=help_text,
-                                     choices=choices)
+            self.parser.add_argument(
+                "--%s" % key,
+                default=true_value,
+                type=type(true_value),
+                help=help_text,
+                choices=choices,
+            )
         return cfg
 
     @classmethod
@@ -74,8 +79,11 @@ class ConfigManager:
         if not match:
             choices = None
         else:
-            help_text = help_text[:match.start()]
-            choices = [cls.__strparser(item.strip()) for item in match.groups()[0].split(",")]
+            help_text = help_text[: match.start()]
+            choices = [
+                cls.__strparser(item.strip())
+                for item in match.groups()[0].split(",")
+            ]
         return help_text, choices
 
     @staticmethod
@@ -84,9 +92,11 @@ class ConfigManager:
         Try to parse the value as str and remove the
         quatation marks beside, if there are any.
         """
-        if unparsed_value[0] == unparsed_value[-1] == "'" \
-            or unparsed_value[0] == unparsed_value[-1] == "\"":
-            return unparsed_value[1: -1]
+        if (
+            unparsed_value[0] == unparsed_value[-1] == "'"
+            or unparsed_value[0] == unparsed_value[-1] == '"'
+        ):
+            return unparsed_value[1:-1]
         return unparsed_value
 
     @staticmethod
@@ -110,9 +120,9 @@ class ConfigManager:
         if item not in self.data:
             raise KeyError("Key `%s` not found in config" % item)
         try:
-            return self.data[item]['value']
+            return self.data[item]["value"]
         except KeyError:
-            return self.data[item]['default']
+            return self.data[item]["default"]
 
     def __setattr__(self, key, value):
         """Allows the value of an item be overrided by program"""
@@ -167,14 +177,14 @@ class ConfigManager:
         This will overwrite the config file
         and commandline arguments.
         """
-        self.__set(key.upper(), value, 'value')
+        self.__set(key.upper(), value, "value")
 
     def set_default(self, key, value):
         """Set the default of a setting item.
         This will overwrite the config file,
         but not the commandline arguments.
         """
-        self.__set(key.upper(), value, 'default')
+        self.__set(key.upper(), value, "default")
 
     def update(self):
         """从命令行参数中更新所有配置"""
@@ -184,10 +194,9 @@ class ConfigManager:
             if key in self.data and "value" in self.data[key]:
                 continue
             try:
-                self.data[key]['value'] = value
+                self.data[key]["value"] = value
             except KeyError:
-                self.data[key] = {'value': value, 'type': type(value)}
-
+                self.data[key] = {"value": value, "type": type(value)}
 
 
 def create_default_config():

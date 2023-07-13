@@ -23,4 +23,4 @@ sphinx_rtd_theme
 IPython
 
 # For pypi document
-pypandoc
+pypandoc==1.5
