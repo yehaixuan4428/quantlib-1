@@ -236,4 +236,7 @@ def make_default_settings():
 
 if not os.path.exists(MAIN_PATH):
     make_default_settings()
+if not os.path.exists(DATA_PATH):
+    os.mkdir(DATA_PATH)
+
 CONFIG = ConfigManager(os.path.join(MAIN_PATH, "config.cfg"))
