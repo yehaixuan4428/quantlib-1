@@ -6,7 +6,10 @@ import re
 import warnings
 from argparse import ArgumentParser
 
-MAIN_PATH = os.path.abspath(os.path.expanduser("~/.quantlib"))
+MAIN_PATH = os.path.abspath(
+    os.path.expanduser(os.path.join(os.environ["CLOUD_DRIVE"], "quant_space"))
+)
+
 CONFIG_PATH = os.path.join(MAIN_PATH, "config.cfg")
 DATA_PATH = os.path.join(MAIN_PATH, "data")
 
